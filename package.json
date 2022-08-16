@@ -1,0 +1,11 @@
+{
+  "name": "resume",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:shwld/resume.git",
+  "author": "shwld <shu.account@outlook.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "hardhat": "^2.10.2"
+  }
+}
