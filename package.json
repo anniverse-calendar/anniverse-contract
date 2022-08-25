@@ -6,8 +6,10 @@
   "author": "shwld <shu.account@outlook.com>",
   "license": "MIT",
   "scripts": {
+    "dev": "hardhat node",
     "build": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "test:local": "npx hardhat test --network localhost"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
