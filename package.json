@@ -9,7 +9,8 @@
     "dev": "hardhat node",
     "build": "hardhat compile",
     "test": "hardhat test",
-    "test:local": "npx hardhat test --network localhost"
+    "test:local": "npx hardhat test --network localhost",
+    "prettier": "prettier --write 'contracts/**/*.sol'"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
@@ -30,6 +31,8 @@
     "ethers": "^5.7.0",
     "hardhat": "^2.10.2",
     "hardhat-gas-reporter": "^1.0.8",
+    "prettier": "^2.7.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.24",
     "solidity-coverage": "^0.7.21",
     "ts-node": ">=8.0.0",
     "typechain": "^8.1.0",

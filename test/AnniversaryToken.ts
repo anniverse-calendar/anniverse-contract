@@ -6,7 +6,7 @@ describe('AnniversaryToken', function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
   // and reset Hardhat Network to that snapshot in every test.
-  async function deployOneYearLockFixture() {
+  async function deploy() {
     // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount] = await ethers.getSigners();
 
@@ -19,12 +19,37 @@ describe('AnniversaryToken', function () {
   }
 
   describe('Deployment', function () {
-    it('Should set the right owner', async function () {
-      const { anniversaryToken, owner } = await loadFixture(
-        deployOneYearLockFixture
-      );
+    it('Should set mint role to the owner', async function () {
+      const { anniversaryToken, owner } = await loadFixture(deploy);
 
-      expect(await anniversaryToken.owner()).to.equal(owner.address);
+      expect(
+        await anniversaryToken.hasRole(
+          anniversaryToken.MINTER_ROLE(),
+          owner.address
+        )
+      ).to.true;
+    });
+
+    it('Should set pauser role to the owner', async function () {
+      const { anniversaryToken, owner } = await loadFixture(deploy);
+
+      expect(
+        await anniversaryToken.hasRole(
+          anniversaryToken.PAUSER_ROLE(),
+          owner.address
+        )
+      ).to.true;
+    });
+
+    it('Should set admin role to the owner', async function () {
+      const { anniversaryToken, owner } = await loadFixture(deploy);
+
+      expect(
+        await anniversaryToken.hasRole(
+          anniversaryToken.DEFAULT_ADMIN_ROLE(),
+          owner.address
+        )
+      ).to.true;
     });
   });
 
@@ -46,93 +71,97 @@ describe('AnniversaryToken', function () {
     expect(await anniversaryToken.symbol()).to.equal('ANNIVERSE');
     expect(await anniversaryToken.totalSupply()).to.equal(0);
 
-    // mint tokenId = 0
-    const mint0Tx = await anniversaryToken.connect(signer).mint(signer.address);
+    // mint tokenId = 101
+    const mint0Tx = await anniversaryToken
+      .connect(signer)
+      .mint(signer.address, 101);
     await mint0Tx.wait();
-    console.log(`mint 0 tx hash: ${mint0Tx.hash}`);
+    console.log(`mint 101 tx hash: ${mint0Tx.hash}`);
 
-    // Assertion for token(tokenId = 0)
+    // Assertion for token(tokenId = 101)
     expect(await anniversaryToken.totalSupply()).to.equal(1);
-    expect(await anniversaryToken.tokenURI(0)).to.equal(
-      'https://anniverse.shwld.app/api/v1/tokens/0'
+    expect(await anniversaryToken.tokenURI(101)).to.equal(
+      'https://anniverse.shwld.app/api/v1/tokens/101'
     );
-    expect(await anniversaryToken.ownerOf(0)).to.equal(signer.address);
+    expect(await anniversaryToken.ownerOf(101)).to.equal(signer.address);
     expect(await anniversaryToken.balanceOf(signer.address)).to.equal(1);
 
-    // mint tokenId = 1
-    const mint1Tx = await anniversaryToken.connect(signer).mint(signer.address);
+    // mint tokenId = 1002
+    const mint1Tx = await anniversaryToken
+      .connect(signer)
+      .mint(signer.address, 1002);
     await mint1Tx.wait();
-    console.log(`mint 1 tx hash: ${mint1Tx.hash}`);
+    console.log(`mint 1002 tx hash: ${mint1Tx.hash}`);
 
-    // Assertion for token(tokenId = 1) and contract state
+    // Assertion for token(tokenId = 1002) and contract state
     expect(await anniversaryToken.totalSupply()).to.equal(2);
-    expect(await anniversaryToken.tokenURI(1)).to.equal(
-      'https://anniverse.shwld.app/api/v1/tokens/1'
+    expect(await anniversaryToken.tokenURI(1002)).to.equal(
+      'https://anniverse.shwld.app/api/v1/tokens/1002'
     );
-    expect(await anniversaryToken.ownerOf(1)).to.equal(signer.address);
+    expect(await anniversaryToken.ownerOf(1002)).to.equal(signer.address);
     expect(await anniversaryToken.balanceOf(signer.address)).to.equal(2);
 
-    // transfer token(tokenId = 1) from signer.address to badSigner.address
+    // transfer token(tokenId = 101) from signer.address to badSigner.address
     const transfer1FromSignerToAddressTx = await anniversaryToken
       .connect(signer)
-      .transferFrom(signer.address, badSigner.address, 1);
+      .transferFrom(signer.address, badSigner.address, 1002);
     await transfer1FromSignerToAddressTx.wait();
     console.log(
       `transfer1FromSignerToAddressTx tx hash: ${transfer1FromSignerToAddressTx.hash}`
     );
 
-    // Assertion for transferred token(tokenId = 1)
+    // Assertion for transferred token(tokenId = 1002)
     expect(await anniversaryToken.totalSupply()).to.equal(2);
-    expect(await anniversaryToken.ownerOf(1)).to.equal(badSigner.address);
+    expect(await anniversaryToken.ownerOf(1002)).to.equal(badSigner.address);
     expect(await anniversaryToken.balanceOf(signer.address)).to.equal(1);
     expect(await anniversaryToken.balanceOf(badSigner.address)).to.equal(1);
 
-    // burn token(tokenId = 0)
-    const burn0Tx = await anniversaryToken.burn(0);
+    // burn token(tokenId = 101)
+    const burn0Tx = await anniversaryToken.burn(101);
     await burn0Tx.wait();
     console.log(`burn0 tx hash: ${burn0Tx.hash}`);
 
-    // Assertion for burned token(tokenId = 0)
+    // Assertion for burned token(tokenId = 101)
     expect(await anniversaryToken.totalSupply()).to.equal(1);
-    expect(anniversaryToken.ownerOf(0)).to.revertedWith(
+    expect(anniversaryToken.ownerOf(101)).to.revertedWith(
       'ERC721: owner query for nonexistent token'
     );
-    expect(anniversaryToken.tokenURI(0)).to.revertedWith(
+    expect(anniversaryToken.tokenURI(101)).to.revertedWith(
       'ERC721Metadata: URI query for nonexistent token'
     );
     expect(await anniversaryToken.balanceOf(signer.address)).to.equal(0);
 
-    // mint token(tokenId = 2)
-    const mint2Tx = await anniversaryToken.mint(badSigner.address);
+    // mint token(tokenId = 1203)
+    const mint2Tx = await anniversaryToken.mint(badSigner.address, 1203);
     await mint2Tx.wait();
     console.log(`mint 2 tx hash: ${mint2Tx.hash}`);
 
-    // Assertion for re-minted token(tokenId = 0)
+    // Assertion for re-minted token(tokenId = 1203)
     expect(await anniversaryToken.totalSupply()).to.equal(2);
-    expect(await anniversaryToken.ownerOf(2)).to.equal(badSigner.address);
-    expect(await anniversaryToken.tokenURI(2)).to.equal(
-      'https://anniverse.shwld.app/api/v1/tokens/2'
+    expect(await anniversaryToken.ownerOf(1203)).to.equal(badSigner.address);
+    expect(await anniversaryToken.tokenURI(1203)).to.equal(
+      'https://anniverse.shwld.app/api/v1/tokens/1203'
     );
     expect(await anniversaryToken.balanceOf(badSigner.address)).to.equal(2);
 
-    // transfer token(tokenId = 2) from badSigner.address to signer.address
+    // transfer token(tokenId = 1203) from badSigner.address to signer.address
     const transfer2FromBadSignerToSignerAddressTx = await anniversaryToken
       .connect(badSigner)
-      .transferFrom(badSigner.address, signer.address, 2);
+      .transferFrom(badSigner.address, signer.address, 1203);
     await transfer2FromBadSignerToSignerAddressTx.wait();
     console.log(
       `transfer2FromBadSignerToSignerAddress tx hash: ${transfer2FromBadSignerToSignerAddressTx.hash}`
     );
 
-    // Assertion for transferred token(tokenId = 2)
+    // Assertion for transferred token(tokenId = 1203)
     expect(await anniversaryToken.totalSupply()).to.equal(2);
-    expect(await anniversaryToken.ownerOf(2)).to.equal(signer.address);
+    expect(await anniversaryToken.ownerOf(1203)).to.equal(signer.address);
     expect(await anniversaryToken.balanceOf(signer.address)).to.equal(1);
     expect(await anniversaryToken.balanceOf(badSigner.address)).to.equal(1);
 
     // Assertion fail to mint with badSigner who has not minter role
     expect(
-      anniversaryToken.connect(badSigner).mint(signer.address)
+      anniversaryToken.connect(badSigner).mint(signer.address, 1203)
     ).to.revertedWith(
       'ERC721PresetMinterPauserAutoId: must have minter role to mint'
     );

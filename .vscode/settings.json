@@ -1,3 +1,7 @@
 {
-  "cSpell.words": ["ANNIVERSE"]
+  "cSpell.words": ["ANNIVERSE"],
+  "editor.formatOnSave": true,
+  "[solidity]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
