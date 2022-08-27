@@ -6,10 +6,11 @@
   "author": "shwld <shu.account@outlook.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "hardhat node",
+    "dev": "hardhat node --hostname 0.0.0.0",
     "build": "hardhat compile",
+    "deploy:local": "hardhat run --network localhost scripts/deploy.ts",
     "test": "hardhat test",
-    "test:local": "npx hardhat test --network localhost",
+    "test:local": "hardhat test --network localhost",
     "prettier": "prettier --write 'contracts/**/*.sol'"
   },
   "devDependencies": {
