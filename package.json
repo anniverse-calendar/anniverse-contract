@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "hardhat node --hostname 0.0.0.0",
     "build": "hardhat compile",
+    "console": "hardhat console",
+    "task:local": "hardhat run --network localhost",
     "deploy:local": "hardhat run --network localhost scripts/deploy.ts",
     "test": "hardhat test",
     "test:local": "hardhat test --network localhost",

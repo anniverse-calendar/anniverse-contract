@@ -9,6 +9,7 @@ import { ERC721Enumerable } from '@openzeppelin/contracts/token/ERC721/extension
 import { ERC721Burnable } from '@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol';
 import { ERC721Pausable } from '@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol';
 import { Context } from '@openzeppelin/contracts/utils/Context.sol';
+import { Anniversable } from './extensions/Anniversable.sol';
 
 // REF: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol
 
@@ -17,7 +18,8 @@ contract AnniversaryToken is
   AccessControlEnumerable,
   ERC721Enumerable,
   ERC721Burnable,
-  ERC721Pausable
+  ERC721Pausable,
+  Anniversable
 {
   bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
   bytes32 public constant PAUSER_ROLE = keccak256('PAUSER_ROLE');
@@ -64,7 +66,7 @@ contract AnniversaryToken is
     address to,
     uint256 tokenId
   ) internal virtual override(ERC721, ERC721Enumerable, ERC721Pausable) {
-    super._beforeTokenTransfer(from, to, tokenId);
+    _beforeTokenTransfer(from, to, tokenId);
   }
 
   /**
