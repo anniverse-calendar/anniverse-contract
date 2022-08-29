@@ -53,6 +53,35 @@ describe('AnniversaryToken', function () {
     });
   });
 
+  describe('Anniversary', async function () {
+    async function createAnniversary() {
+      const { anniversaryToken, owner } = await loadFixture(deploy);
+      const tokenId = 101;
+      await anniversaryToken.mint(owner.address, tokenId);
+
+      return { anniversaryToken, tokenId, owner };
+    }
+    it('Should be able to get empty anniversary', async function () {
+      const { anniversaryToken, tokenId } = await createAnniversary();
+      await expect((await anniversaryToken.anniversary(tokenId)).name).to.be
+        .empty;
+      await expect((await anniversaryToken.anniversary(tokenId)).description).to
+        .be.empty;
+    });
+    it('Should be able to set anniversary', async function () {
+      const { anniversaryToken, tokenId } = await createAnniversary();
+      await anniversaryToken.setAnniversary(tokenId, 'name', 'description');
+      await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
+        'name'
+      );
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).description
+      ).to.be.eq('description');
+    });
+  });
+
   // https://zenn.dev/cauchye/articles/ethereum-contract-erc721
   it('should be able to mint, transferFrom, burn. And it should return appropriate name, symbol, totalSupply, tokenURI, ownerOf, balanceOf', async function () {
     const [signer, badSigner] = await ethers.getSigners();

@@ -66,7 +66,7 @@ contract AnniversaryToken is
     address to,
     uint256 tokenId
   ) internal virtual override(ERC721, ERC721Enumerable, ERC721Pausable) {
-    _beforeTokenTransfer(from, to, tokenId);
+    super._beforeTokenTransfer(from, to, tokenId);
   }
 
   /**

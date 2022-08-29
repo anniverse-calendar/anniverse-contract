@@ -34,7 +34,7 @@ abstract contract Anniversable is Context, ERC721 {
     uint256 tokenId,
     string memory _name,
     string memory _description
-  ) internal virtual {
+  ) public {
     _requireMinted(tokenId);
 
     address owner = ERC721.ownerOf(tokenId);
