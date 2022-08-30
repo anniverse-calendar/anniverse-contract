@@ -23,8 +23,11 @@ abstract contract Anniversable is Context, ERC721 {
     virtual
     returns (Anniversary memory)
   {
-    _requireMinted(tokenId);
-    return _anniversaries[tokenId];
+    if (_exists(tokenId)) {
+      return _anniversaries[tokenId];
+    }
+
+    return Anniversary('', '');
   }
 
   /**
