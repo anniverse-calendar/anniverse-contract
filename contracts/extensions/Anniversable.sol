@@ -7,12 +7,19 @@ import { ERC721 } from '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import { Context } from '@openzeppelin/contracts/utils/Context.sol';
 
 abstract contract Anniversable is Context, ERC721 {
-  struct Anniversary {
+  struct _Anniversary {
     string name;
     string description;
   }
+  struct Anniversary {
+    string name;
+    string description;
+    bool isEmpty;
+  }
 
-  mapping(uint256 => Anniversary) private _anniversaries;
+  mapping(uint256 => _Anniversary) private _anniversaries;
+  mapping(uint256 => uint256) private _indexToTokenId;
+  int256 _anniversariesCount;
 
   /**
    * @dev
@@ -24,10 +31,15 @@ abstract contract Anniversable is Context, ERC721 {
     returns (Anniversary memory)
   {
     if (_exists(tokenId)) {
-      return _anniversaries[tokenId];
+      return
+        Anniversary(
+          _anniversaries[tokenId].name,
+          _anniversaries[tokenId].description,
+          false
+        );
     }
 
-    return Anniversary('', '');
+    return Anniversary('', '', true);
   }
 
   /**
@@ -41,7 +53,7 @@ abstract contract Anniversable is Context, ERC721 {
     _requireMinted(tokenId);
 
     address owner = ERC721.ownerOf(tokenId);
-    require(owner == msg.sender);
+    require(owner == msg.sender, 'must have owner role to set');
 
     bytes memory nameBytes = bytes(_name);
     require(nameBytes.length <= 128, 'name is limited to 128 bytes');
@@ -49,6 +61,6 @@ abstract contract Anniversable is Context, ERC721 {
     bytes memory b = bytes(_description);
     require(b.length <= 512, 'description is limited to 512 bytes');
 
-    _anniversaries[tokenId] = Anniversary(_name, _description);
+    _anniversaries[tokenId] = _Anniversary(_name, _description);
   }
 }
