@@ -32,13 +32,22 @@ contract AnniversaryToken is
     _setupRole(PAUSER_ROLE, _msgSender());
   }
 
-  function mint(address to, uint256 mdd) public virtual {
+  function mint(
+    address to,
+    uint256 month,
+    uint256 day
+  ) public virtual {
     require(
       hasRole(MINTER_ROLE, _msgSender()),
       'ERC721PresetMinterPauserAutoId: must have minter role to mint'
     );
 
-    _mint(to, mdd);
+    require(month > 0 && month <= 12);
+    require(day > 0 && day <= 31);
+
+    uint256 tokenId = month * 100 + day;
+
+    _mint(to, tokenId);
   }
 
   function _baseURI() internal view virtual override returns (string memory) {

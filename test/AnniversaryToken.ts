@@ -56,10 +56,12 @@ describe('AnniversaryToken', function () {
   describe('Anniversary', async function () {
     async function createAnniversary() {
       const { anniversaryToken, owner } = await loadFixture(deploy);
-      const tokenId = 101;
-      await anniversaryToken.mint(owner.address, tokenId);
+      const month = 1;
+      const day = 1;
+      await anniversaryToken.mint(owner.address, month, day);
+      const tokenId = month * 100 + day;
 
-      return { anniversaryToken, tokenId, owner };
+      return { anniversaryToken, tokenId, month, day, owner };
     }
     it('Should be able to get empty anniversary', async function () {
       const { anniversaryToken, tokenId } = await createAnniversary();
@@ -103,7 +105,7 @@ describe('AnniversaryToken', function () {
     // mint tokenId = 101
     const mint0Tx = await anniversaryToken
       .connect(signer)
-      .mint(signer.address, 101);
+      .mint(signer.address, 1, 1);
     await mint0Tx.wait();
     console.log(`mint 101 tx hash: ${mint0Tx.hash}`);
 
@@ -118,7 +120,7 @@ describe('AnniversaryToken', function () {
     // mint tokenId = 1002
     const mint1Tx = await anniversaryToken
       .connect(signer)
-      .mint(signer.address, 1002);
+      .mint(signer.address, 10, 2);
     await mint1Tx.wait();
     console.log(`mint 1002 tx hash: ${mint1Tx.hash}`);
 
@@ -161,7 +163,7 @@ describe('AnniversaryToken', function () {
     expect(await anniversaryToken.balanceOf(signer.address)).to.equal(0);
 
     // mint token(tokenId = 1203)
-    const mint2Tx = await anniversaryToken.mint(badSigner.address, 1203);
+    const mint2Tx = await anniversaryToken.mint(badSigner.address, 12, 3);
     await mint2Tx.wait();
     console.log(`mint 2 tx hash: ${mint2Tx.hash}`);
 
@@ -190,7 +192,7 @@ describe('AnniversaryToken', function () {
 
     // Assertion fail to mint with badSigner who has not minter role
     expect(
-      anniversaryToken.connect(badSigner).mint(signer.address, 1203)
+      anniversaryToken.connect(badSigner).mint(signer.address, 12, 3)
     ).to.revertedWith(
       'ERC721PresetMinterPauserAutoId: must have minter role to mint'
     );
