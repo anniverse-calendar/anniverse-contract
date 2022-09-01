@@ -69,6 +69,8 @@ describe('AnniversaryToken', function () {
         .empty;
       await expect((await anniversaryToken.anniversary(tokenId)).description).to
         .be.empty;
+      await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+        .true;
     });
     it('Should be able to set anniversary', async function () {
       const { anniversaryToken, tokenId } = await createAnniversary();
@@ -81,6 +83,8 @@ describe('AnniversaryToken', function () {
           await anniversaryToken.anniversary(tokenId)
         ).description
       ).to.be.eq('description');
+      await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+        .false;
     });
   });
 
