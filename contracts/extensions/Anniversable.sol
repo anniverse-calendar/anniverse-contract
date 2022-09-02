@@ -18,8 +18,6 @@ abstract contract Anniversable is Context, ERC721 {
   }
 
   mapping(uint256 => _Anniversary) private _anniversaries;
-  mapping(uint256 => uint256) private _indexToTokenId;
-  int256 _anniversariesCount;
 
   /**
    * @dev
@@ -30,7 +28,7 @@ abstract contract Anniversable is Context, ERC721 {
     virtual
     returns (Anniversary memory)
   {
-    if (_exists(tokenId)) {
+    if (_existsAnniversary(tokenId)) {
       return
         Anniversary(
           _anniversaries[tokenId].name,
@@ -56,11 +54,20 @@ abstract contract Anniversable is Context, ERC721 {
     require(owner == msg.sender, 'must have owner role to set');
 
     bytes memory nameBytes = bytes(_name);
+    require(nameBytes.length > 0, 'name is required');
     require(nameBytes.length <= 128, 'name is limited to 128 bytes');
 
-    bytes memory b = bytes(_description);
-    require(b.length <= 512, 'description is limited to 512 bytes');
+    bytes memory descriptionBytes = bytes(_description);
+    require(
+      descriptionBytes.length <= 512,
+      'description is limited to 512 bytes'
+    );
 
     _anniversaries[tokenId] = _Anniversary(_name, _description);
+  }
+
+  function _existsAnniversary(uint256 tokenId) private view returns (bool) {
+    bytes memory nameBytes = bytes(_anniversaries[tokenId].name);
+    return nameBytes.length > 0;
   }
 }
