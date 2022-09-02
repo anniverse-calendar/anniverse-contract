@@ -13,7 +13,8 @@
     "deploy:local": "hardhat run --network localhost scripts/deploy.ts",
     "test": "hardhat test",
     "test:local": "hardhat test --network localhost",
-    "prettier": "prettier --write 'contracts/**/*.sol'"
+    "prettier": "prettier --write 'contracts/**/*.sol'",
+    "windows:unlockport": "powershell.exe ./tools/unlock_port.ps1"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
