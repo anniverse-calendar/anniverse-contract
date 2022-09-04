@@ -9,6 +9,7 @@ import { ERC721Enumerable } from '@openzeppelin/contracts/token/ERC721/extension
 import { ERC721Burnable } from '@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol';
 import { ERC721Pausable } from '@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol';
 import { Context } from '@openzeppelin/contracts/utils/Context.sol';
+import { Counters } from '@openzeppelin/contracts/utils/Counters.sol';
 import { Anniversable } from './extensions/Anniversable.sol';
 
 // REF: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol
@@ -21,33 +22,63 @@ contract AnniversaryToken is
   ERC721Pausable,
   Anniversable
 {
-  bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
+  using Counters for Counters.Counter;
+  Counters.Counter private _tokenCounter;
+  address private _contractOwner;
+
   bytes32 public constant PAUSER_ROLE = keccak256('PAUSER_ROLE');
   string private _baseTokenURI = 'https://anniverse.shwld.app/api/v1/tokens/';
 
   constructor() ERC721('Anniversary', 'ANNIVERSE') {
-    _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+    _contractOwner = _msgSender();
 
-    _setupRole(MINTER_ROLE, _msgSender());
+    _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     _setupRole(PAUSER_ROLE, _msgSender());
+  }
+
+  function isMinter(uint256 tokenId) public view virtual returns (bool) {
+    return _exists(tokenId);
   }
 
   function mint(
     address to,
     uint256 month,
     uint256 day
-  ) public virtual {
-    require(
-      hasRole(MINTER_ROLE, _msgSender()),
-      'ERC721PresetMinterPauserAutoId: must have minter role to mint'
-    );
+  ) public payable virtual {
+    uint256 price = _getPrice();
+    require(msg.value == price, 'must pay');
+    require(month > 0 && month <= 12, 'month is invalid');
+    require(day > 0 && day <= 31, 'day is invalid');
 
-    require(month > 0 && month <= 12);
-    require(day > 0 && day <= 31);
+    _pay(price);
 
     uint256 tokenId = month * 100 + day;
 
     _mint(to, tokenId);
+  }
+
+  function isContractOwner(address _address) public view returns (bool) {
+    return _contractOwner == _address;
+  }
+
+  function _getPrice() private view returns (uint256) {
+    uint256 counter = _tokenCounter.current();
+    uint256 price = 0;
+    if (counter >= 265) {
+      price = 1 ether;
+    } else if (counter >= 165) {
+      price = 0.5 ether;
+    } else if (counter >= 100) {
+      price = 0.05 ether;
+    }
+
+    return price;
+  }
+
+  function _pay(uint256 price) private {
+    address payable receiver = payable(_contractOwner);
+    receiver.transfer(price);
+    _tokenCounter.increment();
   }
 
   function _baseURI() internal view virtual override returns (string memory) {
