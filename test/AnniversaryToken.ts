@@ -59,8 +59,8 @@ describe('AnniversaryToken', function () {
         const day = (counter % 31) + 1;
         const tx =
           options == null
-            ? anniversaryToken.mint(owner.address, month, day)
-            : anniversaryToken.mint(owner.address, month, day, options);
+            ? anniversaryToken.mint(month, day)
+            : anniversaryToken.mint(month, day, options);
         await expect(tx).to.not.be.revertedWith('must pay');
         console.log(`tx (${month * 100 + day}): ${(await tx).hash}`);
       }
@@ -73,7 +73,7 @@ describe('AnniversaryToken', function () {
       }
 
       console.log('start:' + counter);
-      const tx100 = anniversaryToken.mint(owner.address, 4, 8);
+      const tx100 = anniversaryToken.mint(4, 8);
       await expect(tx100).to.be.revertedWith('must pay');
 
       while (counter < 165) {
@@ -84,7 +84,7 @@ describe('AnniversaryToken', function () {
       }
 
       console.log('start:' + counter);
-      const tx165 = anniversaryToken.mint(owner.address, 6, 11, {
+      const tx165 = anniversaryToken.mint(6, 11, {
         value: ethers.utils.parseEther('0.05'),
       });
       await expect(tx165).to.be.revertedWith('must pay');
@@ -97,7 +97,7 @@ describe('AnniversaryToken', function () {
       }
 
       console.log('start:' + counter);
-      const tx265 = anniversaryToken.mint(owner.address, 9, 17, {
+      const tx265 = anniversaryToken.mint(9, 17, {
         value: ethers.utils.parseEther('0.5'),
       });
       await expect(tx265).to.be.revertedWith('must pay');
@@ -116,7 +116,7 @@ describe('AnniversaryToken', function () {
       const { anniversaryToken, owner } = await loadFixture(deploy);
       const month = 1;
       const day = 1;
-      await anniversaryToken.mint(owner.address, month, day);
+      await anniversaryToken.mint(month, day);
       const tokenId = month * 100 + day;
 
       return { anniversaryToken, tokenId, month, day, owner };
@@ -166,9 +166,7 @@ describe('AnniversaryToken', function () {
       expect(await anniversaryToken.totalSupply()).to.equal(0);
 
       // mint tokenId = 101
-      const mint0Tx = await anniversaryToken
-        .connect(signer)
-        .mint(signer.address, 1, 1);
+      const mint0Tx = await anniversaryToken.connect(signer).mint(1, 1);
       await mint0Tx.wait();
       console.log(`mint 101 tx hash: ${mint0Tx.hash}`);
 
@@ -181,9 +179,7 @@ describe('AnniversaryToken', function () {
       expect(await anniversaryToken.balanceOf(signer.address)).to.equal(1);
 
       // mint tokenId = 1002
-      const mint1Tx = await anniversaryToken
-        .connect(signer)
-        .mint(signer.address, 10, 2);
+      const mint1Tx = await anniversaryToken.connect(signer).mint(10, 2);
       await mint1Tx.wait();
       console.log(`mint 1002 tx hash: ${mint1Tx.hash}`);
 
@@ -226,7 +222,7 @@ describe('AnniversaryToken', function () {
       expect(await anniversaryToken.balanceOf(signer.address)).to.equal(0);
 
       // mint token(tokenId = 1203)
-      const mint2Tx = await anniversaryToken.mint(badSigner.address, 12, 3);
+      const mint2Tx = await anniversaryToken.connect(badSigner).mint(12, 3);
       await mint2Tx.wait();
       console.log(`mint 2 tx hash: ${mint2Tx.hash}`);
 
@@ -254,9 +250,7 @@ describe('AnniversaryToken', function () {
       expect(await anniversaryToken.balanceOf(badSigner.address)).to.equal(1);
 
       // Assertion fail to mint with badSigner who has not minter role
-      expect(
-        anniversaryToken.connect(badSigner).mint(signer.address, 12, 3)
-      ).to.revertedWith(
+      expect(anniversaryToken.connect(badSigner).mint(12, 3)).to.revertedWith(
         'ERC721PresetMinterPauserAutoId: must have minter role to mint'
       );
     });

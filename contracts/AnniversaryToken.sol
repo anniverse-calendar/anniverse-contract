@@ -40,11 +40,7 @@ contract AnniversaryToken is
     return _exists(tokenId);
   }
 
-  function mint(
-    address to,
-    uint256 month,
-    uint256 day
-  ) public payable virtual {
+  function mint(uint256 month, uint256 day) public payable virtual {
     uint256 price = _getPrice();
     require(msg.value == price, 'must pay');
     require(month > 0 && month <= 12, 'month is invalid');
@@ -54,7 +50,17 @@ contract AnniversaryToken is
 
     uint256 tokenId = month * 100 + day;
 
-    _mint(to, tokenId);
+    _mint(_msgSender(), tokenId);
+  }
+
+  function hasMint(uint256 month, uint256 day)
+    public
+    view
+    virtual
+    returns (bool)
+  {
+    uint256 tokenId = month * 100 + day;
+    return _exists(tokenId);
   }
 
   function isContractOwner(address _address) public view returns (bool) {

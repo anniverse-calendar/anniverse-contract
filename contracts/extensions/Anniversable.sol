@@ -19,9 +19,6 @@ abstract contract Anniversable is Context, ERC721 {
 
   mapping(uint256 => _Anniversary) private _anniversaries;
 
-  /**
-   * @dev
-   */
   function anniversary(uint256 tokenId)
     public
     view
@@ -40,9 +37,6 @@ abstract contract Anniversable is Context, ERC721 {
     return Anniversary('', '', true);
   }
 
-  /**
-   * @dev
-   */
   function setAnniversary(
     uint256 tokenId,
     string memory _name,
