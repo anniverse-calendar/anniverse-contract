@@ -36,10 +36,6 @@ contract AnniversaryToken is
     _setupRole(PAUSER_ROLE, _msgSender());
   }
 
-  function isMinter(uint256 tokenId) public view virtual returns (bool) {
-    return _exists(tokenId);
-  }
-
   function mint(uint256 month, uint256 day) public payable virtual {
     uint256 price = _getPrice();
     require(msg.value == price, 'must pay');
@@ -61,6 +57,16 @@ contract AnniversaryToken is
   {
     uint256 tokenId = month * 100 + day;
     return _exists(tokenId);
+  }
+
+  function isMinter(uint256 month, uint256 day)
+    public
+    view
+    virtual
+    returns (bool)
+  {
+    uint256 tokenId = month * 100 + day;
+    return ownerOf(tokenId) == _msgSender();
   }
 
   function isContractOwner(address _address) public view returns (bool) {
