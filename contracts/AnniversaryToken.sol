@@ -53,7 +53,7 @@ contract AnniversaryToken is
     _mint(_msgSender(), tokenId);
   }
 
-  function hasMint(uint256 month, uint256 day)
+  function hasMinted(uint256 month, uint256 day)
     public
     view
     virtual
