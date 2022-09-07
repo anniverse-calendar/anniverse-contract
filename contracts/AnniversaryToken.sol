@@ -66,6 +66,9 @@ contract AnniversaryToken is
     returns (bool)
   {
     uint256 tokenId = month * 100 + day;
+    if (!_exists(tokenId)) {
+      return false;
+    }
     return ownerOf(tokenId) == _msgSender();
   }
 
