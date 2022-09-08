@@ -17,6 +17,8 @@ abstract contract Anniversable is Context, ERC721 {
     bool isEmpty;
   }
 
+  event AnniversaryUpdated(uint256 indexed _tokenId, _Anniversary _value);
+
   mapping(uint256 => _Anniversary) private _anniversaries;
 
   function anniversary(uint256 tokenId)
@@ -58,6 +60,7 @@ abstract contract Anniversable is Context, ERC721 {
     );
 
     _anniversaries[tokenId] = _Anniversary(_name, _description);
+    emit AnniversaryUpdated(tokenId, _anniversaries[tokenId]);
   }
 
   function _existsAnniversary(uint256 tokenId) private view returns (bool) {
