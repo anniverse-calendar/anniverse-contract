@@ -132,7 +132,13 @@ describe('AnniversaryToken', function () {
     });
     it('Should be able to set anniversary', async function () {
       const { anniversaryToken, tokenId } = await createAnniversary();
-      await anniversaryToken.setAnniversary(tokenId, 'name', 'description');
+      await anniversaryToken.setAnniversary(
+        tokenId,
+        'name',
+        'description',
+        'shwld',
+        'https://twitter.com/shwld'
+      );
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
         'name'
       );

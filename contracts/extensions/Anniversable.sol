@@ -10,10 +10,14 @@ abstract contract Anniversable is Context, ERC721 {
   struct _Anniversary {
     string name;
     string description;
+    string author;
+    string authorUrl;
   }
   struct Anniversary {
     string name;
     string description;
+    string author;
+    string authorUrl;
     bool isEmpty;
   }
 
@@ -32,17 +36,21 @@ abstract contract Anniversable is Context, ERC721 {
         Anniversary(
           _anniversaries[tokenId].name,
           _anniversaries[tokenId].description,
+          _anniversaries[tokenId].author,
+          _anniversaries[tokenId].authorUrl,
           false
         );
     }
 
-    return Anniversary('', '', true);
+    return Anniversary('', '', '', '', true);
   }
 
   function setAnniversary(
     uint256 tokenId,
     string memory _name,
-    string memory _description
+    string memory _description,
+    string memory _author,
+    string memory _authorUrl
   ) public {
     _requireMinted(tokenId);
 
@@ -59,7 +67,12 @@ abstract contract Anniversable is Context, ERC721 {
       'description is limited to 512 bytes'
     );
 
-    _anniversaries[tokenId] = _Anniversary(_name, _description);
+    _anniversaries[tokenId] = _Anniversary(
+      _name,
+      _description,
+      _author,
+      _authorUrl
+    );
     emit AnniversaryUpdated(tokenId, _anniversaries[tokenId]);
   }
 
