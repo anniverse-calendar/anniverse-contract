@@ -297,10 +297,27 @@ describe('AnniversaryToken', function () {
         .true;
     });
 
-    // TODO: supportsInterfaceのテスト
     // TODO: hasMintedのテスト
     // TODO: isMinterのテスト
     // TODO: isContractOwnerのテスト
+  });
+
+  describe('EIP-165', async function () {
+    it('Should be supported when EIP-165', async function () {
+      const { anniversaryToken } = await loadFixture(deploy);
+      expect(await anniversaryToken.supportsInterface('0x01ffc9a7')).to.be.true;
+    });
+
+    it('Should not be supported when 0xffffffff', async function () {
+      const { anniversaryToken } = await loadFixture(deploy);
+      expect(await anniversaryToken.supportsInterface('0xffffffff')).to.be
+        .false;
+    });
+
+    it('Should be supported when ERC-721', async function () {
+      const { anniversaryToken } = await loadFixture(deploy);
+      expect(await anniversaryToken.supportsInterface('0x80ac58cd')).to.be.true;
+    });
   });
 
   // https://zenn.dev/cauchye/articles/ethereum-contract-erc721
