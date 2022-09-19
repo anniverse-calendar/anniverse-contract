@@ -114,15 +114,21 @@ describe('AnniversaryToken', function () {
   describe('Anniversary', async function () {
     async function mint101() {
       const [signer, otherSigner] = await ethers.getSigners();
-      const { anniversaryToken, owner, otherAccount } = await loadFixture(
-        deploy
-      );
+      const { anniversaryToken, owner } = await loadFixture(deploy);
       const month = 1;
       const day = 1;
       await anniversaryToken.mint(month, day);
       const tokenId = month * 100 + day;
 
-      return { anniversaryToken, tokenId, month, day, owner, otherSigner };
+      return {
+        anniversaryToken,
+        tokenId,
+        month,
+        day,
+        owner,
+        signer,
+        otherSigner,
+      };
     }
     it('Should be able to get empty anniversary', async function () {
       const { anniversaryToken, tokenId } = await mint101();
@@ -154,6 +160,30 @@ describe('AnniversaryToken', function () {
         .false;
     });
 
+    it('Should not change anniversary when not have minted.', async function () {
+      const { anniversaryToken } = await loadFixture(deploy);
+      const tokenId = 101;
+      expect(
+        anniversaryToken.setAnniversary(
+          tokenId,
+          'other name',
+          'other description',
+          'other',
+          'https://twitter.com/other'
+        )
+      ).to.revertedWith('ERC721: invalid token ID');
+      await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
+        ''
+      );
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).description
+      ).to.be.eq('');
+      await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+        .true;
+    });
+
     it('Should not change anniversary by other user', async function () {
       const { anniversaryToken, tokenId, otherSigner } = await mint101();
       expect(
@@ -179,8 +209,95 @@ describe('AnniversaryToken', function () {
         .true;
     });
 
-    // TODO: supportsInterfaceのテスト
+    it('Should change anniversary when name is 128 characters.', async function () {
+      const { anniversaryToken, tokenId } = await mint101();
+      await anniversaryToken.setAnniversary(
+        tokenId,
+        'A'.repeat(128),
+        'description',
+        'owner',
+        'https://twitter.com/owner'
+      );
+      await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
+        'A'.repeat(128)
+      );
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).description
+      ).to.be.eq('description');
+      await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+        .false;
+    });
 
+    it('Should not change anniversary when name is 129 characters.', async function () {
+      const { anniversaryToken, tokenId } = await mint101();
+      expect(
+        anniversaryToken.setAnniversary(
+          tokenId,
+          'A'.repeat(129),
+          'description',
+          'owner',
+          'https://twitter.com/owner'
+        )
+      ).to.revertedWith('name is limited to 128 bytes');
+      await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
+        ''
+      );
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).description
+      ).to.be.eq('');
+      await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+        .true;
+    });
+
+    it('Should change anniversary when description is 512 characters.', async function () {
+      const { anniversaryToken, tokenId } = await mint101();
+      await anniversaryToken.setAnniversary(
+        tokenId,
+        'name',
+        'A'.repeat(512),
+        'owner',
+        'https://twitter.com/owner'
+      );
+      await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
+        'name'
+      );
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).description
+      ).to.be.eq('A'.repeat(512));
+      await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+        .false;
+    });
+
+    it('Should not change anniversary when description is 513 characters.', async function () {
+      const { anniversaryToken, tokenId } = await mint101();
+      expect(
+        anniversaryToken.setAnniversary(
+          tokenId,
+          'name',
+          'A'.repeat(513),
+          'owner',
+          'https://twitter.com/owner'
+        )
+      ).to.revertedWith('description is limited to 512 bytes');
+      await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
+        ''
+      );
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).description
+      ).to.be.eq('');
+      await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+        .true;
+    });
+
+    // TODO: supportsInterfaceのテスト
     // TODO: hasMintedのテスト
     // TODO: isMinterのテスト
     // TODO: isContractOwnerのテスト

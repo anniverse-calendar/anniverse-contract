@@ -31,7 +31,7 @@ abstract contract Anniversable is Context, ERC721 {
     virtual
     returns (Anniversary memory)
   {
-    if (_existsAnniversary(tokenId)) {
+    if (_anniversaryExisted(tokenId)) {
       return
         Anniversary(
           _anniversaries[tokenId].name,
@@ -76,7 +76,7 @@ abstract contract Anniversable is Context, ERC721 {
     emit AnniversaryUpdated(tokenId, _anniversaries[tokenId]);
   }
 
-  function _existsAnniversary(uint256 tokenId) private view returns (bool) {
+  function _anniversaryExisted(uint256 tokenId) private view returns (bool) {
     bytes memory nameBytes = bytes(_anniversaries[tokenId].name);
     return nameBytes.length > 0;
   }
