@@ -112,17 +112,20 @@ describe('AnniversaryToken', function () {
   });
 
   describe('Anniversary', async function () {
-    async function createAnniversary() {
-      const { anniversaryToken, owner } = await loadFixture(deploy);
+    async function mint101() {
+      const [signer, otherSigner] = await ethers.getSigners();
+      const { anniversaryToken, owner, otherAccount } = await loadFixture(
+        deploy
+      );
       const month = 1;
       const day = 1;
       await anniversaryToken.mint(month, day);
       const tokenId = month * 100 + day;
 
-      return { anniversaryToken, tokenId, month, day, owner };
+      return { anniversaryToken, tokenId, month, day, owner, otherSigner };
     }
     it('Should be able to get empty anniversary', async function () {
-      const { anniversaryToken, tokenId } = await createAnniversary();
+      const { anniversaryToken, tokenId } = await mint101();
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be
         .empty;
       await expect((await anniversaryToken.anniversary(tokenId)).description).to
@@ -131,7 +134,7 @@ describe('AnniversaryToken', function () {
         .true;
     });
     it('Should be able to set anniversary', async function () {
-      const { anniversaryToken, tokenId } = await createAnniversary();
+      const { anniversaryToken, tokenId } = await mint101();
       await anniversaryToken.setAnniversary(
         tokenId,
         'name',
@@ -150,11 +153,42 @@ describe('AnniversaryToken', function () {
       await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
         .false;
     });
+
+    it('Should not change anniversary by other user', async function () {
+      const { anniversaryToken, tokenId, otherSigner } = await mint101();
+      expect(
+        anniversaryToken
+          .connect(otherSigner)
+          .setAnniversary(
+            tokenId,
+            'other name',
+            'other description',
+            'other',
+            'https://twitter.com/other'
+          )
+      ).to.revertedWith('must have owner role to set');
+      await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
+        ''
+      );
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).description
+      ).to.be.eq('');
+      await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+        .true;
+    });
+
+    // TODO: supportsInterfaceのテスト
+
+    // TODO: hasMintedのテスト
+    // TODO: isMinterのテスト
+    // TODO: isContractOwnerのテスト
   });
 
   // https://zenn.dev/cauchye/articles/ethereum-contract-erc721
   describe('feature', async function () {
-    it('should be able to mint, transferFrom, burn. And it should return appropriate name, symbol, totalSupply, tokenURI, ownerOf, balanceOf', async function () {
+    it('should be able to mint101, transferFrom, burn. And it should return appropriate name, symbol, totalSupply, tokenURI, ownerOf, balanceOf', async function () {
       const [signer, badSigner] = await ethers.getSigners();
       const AnniversaryToken = await ethers.getContractFactory(
         'AnniversaryToken'
