@@ -298,12 +298,11 @@ describe('AnniversaryToken', function () {
         .true;
     });
 
-    // TODO: isMinterのテスト
     // TODO: isContractOwnerのテスト
   });
 
   describe('#hasMinted', async function () {
-    it('Should be true when have not minted', async function () {
+    it('Should be false when have not minted', async function () {
       const { anniversaryToken } = await loadFixture(deploy);
       expect(await anniversaryToken.hasMinted(1, 1)).to.be.false;
     });
@@ -317,6 +316,24 @@ describe('AnniversaryToken', function () {
       const { anniversaryToken, otherSigner } = await mint101();
       expect(await anniversaryToken.connect(otherSigner).hasMinted(1, 1)).to.be
         .true;
+    });
+  });
+
+  describe('#isMinter', async function () {
+    it('Should be false when have not minted', async function () {
+      const { anniversaryToken } = await loadFixture(deploy);
+      expect(await anniversaryToken.isMinter(1, 1)).to.be.false;
+    });
+
+    it('Should be true when minted', async function () {
+      const { anniversaryToken } = await mint101();
+      expect(await anniversaryToken.isMinter(1, 1)).to.be.true;
+    });
+
+    it('Should be false when minted by other account', async function () {
+      const { anniversaryToken, otherSigner } = await mint101();
+      expect(await anniversaryToken.connect(otherSigner).isMinter(1, 1)).to.be
+        .false;
     });
   });
 
