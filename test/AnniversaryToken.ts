@@ -21,9 +21,13 @@ describe('AnniversaryToken', function () {
 
   describe('Deployment', function () {
     it('Should set contract owner role to the owner', async function () {
-      const { anniversaryToken, owner } = await loadFixture(deploy);
+      const { anniversaryToken, owner, otherAccount } = await loadFixture(
+        deploy
+      );
 
       expect(await anniversaryToken.isContractOwner(owner.address)).to.true;
+      expect(await anniversaryToken.isContractOwner(otherAccount.address)).to
+        .false;
     });
 
     it('Should set pauser role to the owner', async function () {
@@ -297,8 +301,6 @@ describe('AnniversaryToken', function () {
       await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
         .true;
     });
-
-    // TODO: isContractOwnerのテスト
   });
 
   describe('#hasMinted', async function () {
