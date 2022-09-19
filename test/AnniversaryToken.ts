@@ -111,25 +111,26 @@ describe('AnniversaryToken', function () {
     });
   });
 
-  describe('Anniversary', async function () {
-    async function mint101() {
-      const [signer, otherSigner] = await ethers.getSigners();
-      const { anniversaryToken, owner } = await loadFixture(deploy);
-      const month = 1;
-      const day = 1;
-      await anniversaryToken.mint(month, day);
-      const tokenId = month * 100 + day;
+  async function mint101() {
+    const [signer, otherSigner] = await ethers.getSigners();
+    const { anniversaryToken, owner } = await loadFixture(deploy);
+    const month = 1;
+    const day = 1;
+    await anniversaryToken.mint(month, day);
+    const tokenId = month * 100 + day;
 
-      return {
-        anniversaryToken,
-        tokenId,
-        month,
-        day,
-        owner,
-        signer,
-        otherSigner,
-      };
-    }
+    return {
+      anniversaryToken,
+      tokenId,
+      month,
+      day,
+      owner,
+      signer,
+      otherSigner,
+    };
+  }
+
+  describe('Anniversary', async function () {
     it('Should be able to get empty anniversary', async function () {
       const { anniversaryToken, tokenId } = await mint101();
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be
@@ -297,9 +298,26 @@ describe('AnniversaryToken', function () {
         .true;
     });
 
-    // TODO: hasMintedのテスト
     // TODO: isMinterのテスト
     // TODO: isContractOwnerのテスト
+  });
+
+  describe('#hasMinted', async function () {
+    it('Should be true when have not minted', async function () {
+      const { anniversaryToken } = await loadFixture(deploy);
+      expect(await anniversaryToken.hasMinted(1, 1)).to.be.false;
+    });
+
+    it('Should be true when minted', async function () {
+      const { anniversaryToken } = await mint101();
+      expect(await anniversaryToken.hasMinted(1, 1)).to.be.true;
+    });
+
+    it('Should be true when minted by other account', async function () {
+      const { anniversaryToken, otherSigner } = await mint101();
+      expect(await anniversaryToken.connect(otherSigner).hasMinted(1, 1)).to.be
+        .true;
+    });
   });
 
   describe('EIP-165', async function () {
