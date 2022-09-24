@@ -27,7 +27,7 @@ contract AnniversaryToken is
   address private _contractOwner;
 
   bytes32 public constant PAUSER_ROLE = keccak256('PAUSER_ROLE');
-  string private _baseTokenURI = 'https://anniverse.shwld.app/api/v1/tokens/';
+  string private _baseTokenURI = 'https://anniverse.shwld.app/api/tokens/';
 
   constructor() ERC721('Anniversary', 'ANNIVERSE') {
     _contractOwner = _msgSender();
