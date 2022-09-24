@@ -9,6 +9,7 @@
     "dev": "hardhat node --hostname 0.0.0.0",
     "build": "hardhat compile",
     "console": "hardhat console",
+    "clean": "hardhat clean",
     "task:local": "hardhat run --network localhost",
     "task:goerli": "hardhat run --network goerli",
     "deploy:local": "hardhat run --network localhost scripts/deploy.ts",
