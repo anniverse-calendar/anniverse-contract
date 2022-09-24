@@ -67,6 +67,14 @@ abstract contract Anniversable is Context, ERC721 {
       'description is limited to 512 bytes'
     );
 
+    bytes memory authorBytes = bytes(_author);
+    require(authorBytes.length > 0, 'author is required');
+    require(authorBytes.length <= 128, 'author is limited to 128 bytes');
+
+    bytes memory authorUrlBytes = bytes(_authorUrl);
+    require(authorUrlBytes.length > 0, 'authorUrl is required');
+    require(authorUrlBytes.length <= 512, 'authorUrl is limited to 512 bytes');
+
     _anniversaries[tokenId] = _Anniversary(
       _name,
       _description,
