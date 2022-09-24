@@ -84,6 +84,19 @@ abstract contract Anniversable is Context, ERC721 {
     emit AnniversaryUpdated(tokenId, _anniversaries[tokenId]);
   }
 
+  function anniversaries365() public view returns (Anniversary[] memory) {
+    Anniversary[] memory results = new Anniversary[](372);
+    for (uint256 month = 1; month <= 12; month++) {
+      for (uint256 day = 1; day <= 31; day++) {
+        uint256 i = (month - 1) * 31 + day - 1;
+        uint256 tokenId = month * 100 + day;
+        results[i] = anniversary(tokenId);
+      }
+    }
+
+    return results;
+  }
+
   function _anniversaryExisted(uint256 tokenId) private view returns (bool) {
     bytes memory nameBytes = bytes(_anniversaries[tokenId].name);
     return nameBytes.length > 0;

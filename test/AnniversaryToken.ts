@@ -303,6 +303,13 @@ describe('AnniversaryToken', function () {
     });
   });
 
+  describe('#anniversaries365', async function () {
+    it('Should be returns 372 items', async function () {
+      const { anniversaryToken } = await loadFixture(deploy);
+      expect((await anniversaryToken.anniversaries365()).length).to.eq(372);
+    });
+  });
+
   describe('#hasMinted', async function () {
     it('Should be false when have not minted', async function () {
       const { anniversaryToken } = await loadFixture(deploy);
