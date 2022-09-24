@@ -115,11 +115,9 @@ describe('AnniversaryToken', function () {
     });
   });
 
-  async function mint101() {
+  async function testMint(month = 1, day = 1) {
     const [signer, otherSigner] = await ethers.getSigners();
     const { anniversaryToken, owner } = await loadFixture(deploy);
-    const month = 1;
-    const day = 1;
     await anniversaryToken.mint(month, day);
     const tokenId = month * 100 + day;
 
@@ -132,6 +130,9 @@ describe('AnniversaryToken', function () {
       signer,
       otherSigner,
     };
+  }
+  async function mint101() {
+    return testMint(1, 1);
   }
 
   describe('Anniversary', async function () {
@@ -152,6 +153,43 @@ describe('AnniversaryToken', function () {
         'description',
         'shwld',
         'https://twitter.com/shwld'
+      );
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).month
+      ).to.be.eq(1);
+      await expect((await anniversaryToken.anniversary(tokenId)).day).to.be.eq(
+        1
+      );
+      await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
+        'name'
+      );
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).description
+      ).to.be.eq('description');
+      await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+        .false;
+    });
+
+    it('Should be able to set anniversary month day', async function () {
+      const { anniversaryToken, tokenId } = await testMint(12, 31);
+      await anniversaryToken.setAnniversary(
+        tokenId,
+        'name',
+        'description',
+        'shwld',
+        'https://twitter.com/shwld'
+      );
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).month
+      ).to.be.eq(12);
+      await expect((await anniversaryToken.anniversary(tokenId)).day).to.be.eq(
+        31
       );
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
         'name'
