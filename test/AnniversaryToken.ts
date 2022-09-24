@@ -341,6 +341,94 @@ describe('AnniversaryToken', function () {
     });
   });
 
+  it('Should change anniversary when author is 128 characters.', async function () {
+    const { anniversaryToken, tokenId } = await mint101();
+    await anniversaryToken.setAnniversary(
+      tokenId,
+      'name',
+      'description',
+      'A'.repeat(128),
+      'https://twitter.com/owner'
+    );
+    await expect((await anniversaryToken.anniversary(tokenId)).author).to.be.eq(
+      'A'.repeat(128)
+    );
+    await expect(
+      (
+        await anniversaryToken.anniversary(tokenId)
+      ).description
+    ).to.be.eq('description');
+    await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+      .false;
+  });
+
+  it('Should not change anniversary when author is 129 characters.', async function () {
+    const { anniversaryToken, tokenId } = await mint101();
+    expect(
+      anniversaryToken.setAnniversary(
+        tokenId,
+        'name',
+        'description',
+        'A'.repeat(129),
+        'https://twitter.com/owner'
+      )
+    ).to.revertedWith('author is limited to 128 bytes');
+    await expect((await anniversaryToken.anniversary(tokenId)).author).to.be.eq(
+      ''
+    );
+    await expect(
+      (
+        await anniversaryToken.anniversary(tokenId)
+      ).description
+    ).to.be.eq('');
+    await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+      .true;
+  });
+
+  it('Should change anniversary when authorUrl is 512 characters.', async function () {
+    const { anniversaryToken, tokenId } = await mint101();
+    await anniversaryToken.setAnniversary(
+      tokenId,
+      'name',
+      'description',
+      'owner',
+      'A'.repeat(512)
+    );
+    await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
+      'name'
+    );
+    await expect(
+      (
+        await anniversaryToken.anniversary(tokenId)
+      ).authorUrl
+    ).to.be.eq('A'.repeat(512));
+    await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+      .false;
+  });
+
+  it('Should not change anniversary when authorUrl is 513 characters.', async function () {
+    const { anniversaryToken, tokenId } = await mint101();
+    expect(
+      anniversaryToken.setAnniversary(
+        tokenId,
+        'name',
+        'description',
+        'owner',
+        'A'.repeat(513)
+      )
+    ).to.revertedWith('authorUrl is limited to 512 bytes');
+    await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
+      ''
+    );
+    await expect(
+      (
+        await anniversaryToken.anniversary(tokenId)
+      ).authorUrl
+    ).to.be.eq('');
+    await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
+      .true;
+  });
+
   describe('#anniversaries365', async function () {
     it('Should be returns 372 items', async function () {
       const { anniversaryToken } = await loadFixture(deploy);
