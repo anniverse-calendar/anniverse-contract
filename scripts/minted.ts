@@ -5,7 +5,7 @@ async function main() {
   const factory = await ethers.getContractFactory('AnniversaryToken');
   const anniversaryToken = factory.attach(contractAddress());
   // const [owner] = await ethers.getSigners();
-  const tx = await anniversaryToken.anniversary(924);
+  const tx = await anniversaryToken.hasMinted(9, 24);
   console.log(tx);
 }
 
