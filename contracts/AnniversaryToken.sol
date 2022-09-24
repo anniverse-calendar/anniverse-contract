@@ -100,6 +100,11 @@ contract AnniversaryToken is
     return _baseTokenURI;
   }
 
+  function setBaseURI(string memory newURI) public {
+    require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), 'Caller is not admin');
+    _baseTokenURI = newURI;
+  }
+
   function pause() public virtual {
     require(
       hasRole(PAUSER_ROLE, _msgSender()),

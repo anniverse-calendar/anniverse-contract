@@ -135,6 +135,36 @@ describe('AnniversaryToken', function () {
     return testMint(1, 1);
   }
 
+  describe('#setBaseURI', async function () {
+    it('Should be change baseURI', async function () {
+      const { anniversaryToken } = await mint101();
+      expect(await anniversaryToken.tokenURI(101)).to.eq(
+        'https://anniverse.shwld.app/api/v1/tokens/101'
+      );
+      expect(
+        anniversaryToken.setBaseURI('https://example.com/api/')
+      ).to.not.revertedWith('Caller is not admin');
+      expect(await anniversaryToken.tokenURI(101)).to.eq(
+        'https://example.com/api/101'
+      );
+    });
+
+    it('Should not be change baseURI when other account', async function () {
+      const { anniversaryToken, otherSigner } = await mint101();
+      expect(await anniversaryToken.connect(otherSigner).tokenURI(101)).to.eq(
+        'https://anniverse.shwld.app/api/v1/tokens/101'
+      );
+      expect(
+        anniversaryToken
+          .connect(otherSigner)
+          .setBaseURI('https://example.com/api/')
+      ).to.revertedWith('Caller is not admin');
+      expect(await anniversaryToken.connect(otherSigner).tokenURI(101)).to.eq(
+        'https://anniverse.shwld.app/api/v1/tokens/101'
+      );
+    });
+  });
+
   describe('Anniversary', async function () {
     it('Should be able to get empty anniversary', async function () {
       const { anniversaryToken, tokenId } = await mint101();
