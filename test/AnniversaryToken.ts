@@ -139,7 +139,7 @@ describe('AnniversaryToken', function () {
     it('Should be change baseURI', async function () {
       const { anniversaryToken } = await mint101();
       expect(await anniversaryToken.tokenURI(101)).to.eq(
-        'https://anniverse.shwld.app/api/v1/tokens/101'
+        'https://anniverse.shwld.app/api/tokens/101'
       );
       expect(
         anniversaryToken.setBaseURI('https://example.com/api/')
@@ -152,7 +152,7 @@ describe('AnniversaryToken', function () {
     it('Should not be change baseURI when other account', async function () {
       const { anniversaryToken, otherSigner } = await mint101();
       expect(await anniversaryToken.connect(otherSigner).tokenURI(101)).to.eq(
-        'https://anniverse.shwld.app/api/v1/tokens/101'
+        'https://anniverse.shwld.app/api/tokens/101'
       );
       expect(
         anniversaryToken
@@ -160,7 +160,7 @@ describe('AnniversaryToken', function () {
           .setBaseURI('https://example.com/api/')
       ).to.revertedWith('Caller is not admin');
       expect(await anniversaryToken.connect(otherSigner).tokenURI(101)).to.eq(
-        'https://anniverse.shwld.app/api/v1/tokens/101'
+        'https://anniverse.shwld.app/api/tokens/101'
       );
     });
   });
@@ -500,6 +500,19 @@ describe('AnniversaryToken', function () {
       expect(await anniversaryToken.connect(otherSigner).isMinter(1, 1)).to.be
         .false;
     });
+
+    it('Should be true when transfer to other account', async function () {
+      const { anniversaryToken, signer, otherSigner } = await mint101();
+      expect(await anniversaryToken.connect(otherSigner).isMinter(1, 1)).to.be
+        .false;
+      await anniversaryToken.transferFrom(
+        signer.address,
+        otherSigner.address,
+        101
+      );
+      expect(await anniversaryToken.connect(otherSigner).isMinter(1, 1)).to.be
+        .true;
+    });
   });
 
   describe('EIP-165', async function () {
@@ -547,7 +560,7 @@ describe('AnniversaryToken', function () {
       // Assertion for token(tokenId = 101)
       expect(await anniversaryToken.totalSupply()).to.equal(1);
       expect(await anniversaryToken.tokenURI(101)).to.equal(
-        'https://anniverse.shwld.app/api/v1/tokens/101'
+        'https://anniverse.shwld.app/api/tokens/101'
       );
       expect(await anniversaryToken.ownerOf(101)).to.equal(signer.address);
       expect(await anniversaryToken.balanceOf(signer.address)).to.equal(1);
@@ -560,7 +573,7 @@ describe('AnniversaryToken', function () {
       // Assertion for token(tokenId = 1002) and contract state
       expect(await anniversaryToken.totalSupply()).to.equal(2);
       expect(await anniversaryToken.tokenURI(1002)).to.equal(
-        'https://anniverse.shwld.app/api/v1/tokens/1002'
+        'https://anniverse.shwld.app/api/tokens/1002'
       );
       expect(await anniversaryToken.ownerOf(1002)).to.equal(signer.address);
       expect(await anniversaryToken.balanceOf(signer.address)).to.equal(2);
@@ -604,7 +617,7 @@ describe('AnniversaryToken', function () {
       expect(await anniversaryToken.totalSupply()).to.equal(2);
       expect(await anniversaryToken.ownerOf(1203)).to.equal(badSigner.address);
       expect(await anniversaryToken.tokenURI(1203)).to.equal(
-        'https://anniverse.shwld.app/api/v1/tokens/1203'
+        'https://anniverse.shwld.app/api/tokens/1203'
       );
       expect(await anniversaryToken.balanceOf(badSigner.address)).to.equal(2);
 
