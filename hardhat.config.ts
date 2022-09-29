@@ -52,6 +52,21 @@ task('minted', 'hasMinted')
     console.log(tx);
   });
 
+task('is_minter', 'isMinter')
+  .addParam('month', 'month')
+  .addParam('day', 'day')
+  .setAction(async (taskArgs, { ethers, network }) => {
+    const contractAddress = CONTRACT_ADDRESS[network.name];
+    const factory = await ethers.getContractFactory('AnniversaryToken');
+    const anniversaryToken = factory.attach(contractAddress);
+
+    const tx = await anniversaryToken.isMinter(
+      Number(taskArgs.month),
+      Number(taskArgs.day)
+    );
+    console.log(tx);
+  });
+
 task('view', 'view')
   .addParam('token', 'tokenId')
   .setAction(async (taskArgs, { ethers, network }) => {
