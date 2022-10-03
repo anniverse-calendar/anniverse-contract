@@ -59,6 +59,8 @@ describe('AnniversaryToken', function () {
         counter: number,
         options?: { value: BigNumber }
       ): Promise<void> {
+        const price = await anniversaryToken.getPrice();
+        expect(price).to.eq(options?.value ?? 0);
         const month = Math.floor(counter / 31) + 1;
         const day = (counter % 31) + 1;
         const tx =
