@@ -6,7 +6,15 @@ import { CONTRACT_ADDRESS } from './config/contants';
 dotenv.config();
 
 const config: HardhatUserConfig = {
-  solidity: '0.8.9',
+  solidity: {
+    version: '0.8.9',
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
   networks: {
     ...(process.env.ALCHEMY_API_KEY
       ? {
@@ -66,6 +74,15 @@ task('is_minter', 'isMinter')
     );
     console.log(tx);
   });
+
+task('price', 'getPrice').setAction(async (_taskArgs, { ethers, network }) => {
+  const contractAddress = CONTRACT_ADDRESS[network.name];
+  const factory = await ethers.getContractFactory('AnniversaryToken');
+  const anniversaryToken = factory.attach(contractAddress);
+
+  const tx = await anniversaryToken.getPrice();
+  console.log(tx);
+});
 
 task('view', 'view')
   .addParam('token', 'tokenId')
