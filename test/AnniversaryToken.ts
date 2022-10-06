@@ -184,7 +184,8 @@ describe('AnniversaryToken', function () {
         'name',
         'description',
         'shwld',
-        'https://twitter.com/shwld'
+        'https://twitter.com/shwld',
+        'ja-jp'
       );
       await expect(
         (
@@ -213,7 +214,8 @@ describe('AnniversaryToken', function () {
         'name',
         'description',
         'shwld',
-        'https://twitter.com/shwld'
+        'https://twitter.com/shwld',
+        'ja-jp'
       );
       await expect(
         (
@@ -244,7 +246,8 @@ describe('AnniversaryToken', function () {
           'other name',
           'other description',
           'other',
-          'https://twitter.com/other'
+          'https://twitter.com/other',
+          'ja-jp'
         )
       ).to.revertedWith('ERC721: invalid token ID');
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
@@ -269,7 +272,8 @@ describe('AnniversaryToken', function () {
             'other name',
             'other description',
             'other',
-            'https://twitter.com/other'
+            'https://twitter.com/other',
+            'ja-jp'
           )
       ).to.revertedWith('must have owner role to set');
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
@@ -291,7 +295,8 @@ describe('AnniversaryToken', function () {
         'A'.repeat(128),
         'description',
         'owner',
-        'https://twitter.com/owner'
+        'https://twitter.com/owner',
+        'ja-jp'
       );
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
         'A'.repeat(128)
@@ -313,7 +318,8 @@ describe('AnniversaryToken', function () {
           'A'.repeat(129),
           'description',
           'owner',
-          'https://twitter.com/owner'
+          'https://twitter.com/owner',
+          'ja-jp'
         )
       ).to.revertedWith('name is limited to 128 bytes');
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
@@ -335,7 +341,8 @@ describe('AnniversaryToken', function () {
         'name',
         'A'.repeat(512),
         'owner',
-        'https://twitter.com/owner'
+        'https://twitter.com/owner',
+        'ja-jp'
       );
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
         'name'
@@ -357,7 +364,8 @@ describe('AnniversaryToken', function () {
           'name',
           'A'.repeat(513),
           'owner',
-          'https://twitter.com/owner'
+          'https://twitter.com/owner',
+          'ja-jp'
         )
       ).to.revertedWith('description is limited to 512 bytes');
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
@@ -380,7 +388,8 @@ describe('AnniversaryToken', function () {
       'name',
       'description',
       'A'.repeat(128),
-      'https://twitter.com/owner'
+      'https://twitter.com/owner',
+      'ja-jp'
     );
     await expect((await anniversaryToken.anniversary(tokenId)).author).to.be.eq(
       'A'.repeat(128)
@@ -402,7 +411,8 @@ describe('AnniversaryToken', function () {
         'name',
         'description',
         'A'.repeat(129),
-        'https://twitter.com/owner'
+        'https://twitter.com/owner',
+        'ja-jp'
       )
     ).to.revertedWith('author is limited to 128 bytes');
     await expect((await anniversaryToken.anniversary(tokenId)).author).to.be.eq(
@@ -424,7 +434,8 @@ describe('AnniversaryToken', function () {
       'name',
       'description',
       'owner',
-      'A'.repeat(512)
+      'A'.repeat(512),
+      'ja-jp'
     );
     await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
       'name'
@@ -446,7 +457,8 @@ describe('AnniversaryToken', function () {
         'name',
         'description',
         'owner',
-        'A'.repeat(513)
+        'A'.repeat(513),
+        'ja-jp'
       )
     ).to.revertedWith('authorUrl is limited to 512 bytes');
     await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
