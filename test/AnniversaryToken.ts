@@ -203,6 +203,19 @@ describe('AnniversaryToken', function () {
           await anniversaryToken.anniversary(tokenId)
         ).description
       ).to.be.eq('description');
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).author
+      ).to.be.eq('shwld');
+      await expect(
+        (
+          await anniversaryToken.anniversary(tokenId)
+        ).authorUrl
+      ).to.be.eq('https://twitter.com/shwld');
+      await expect((await anniversaryToken.anniversary(tokenId)).lang).to.be.eq(
+        'ja-jp'
+      );
       await expect((await anniversaryToken.anniversary(tokenId)).isEmpty).to.be
         .false;
     });
