@@ -75,14 +75,16 @@ task('is_minter', 'isMinter')
     console.log(tx);
   });
 
-task('price', 'getPrice').setAction(async (_taskArgs, { ethers, network }) => {
-  const contractAddress = CONTRACT_ADDRESS[network.name];
-  const factory = await ethers.getContractFactory('AnniversaryToken');
-  const anniversaryToken = factory.attach(contractAddress);
+task('price', 'getPrice')
+  .addParam('token', 'tokenId')
+  .setAction(async (taskArgs, { ethers, network }) => {
+    const contractAddress = CONTRACT_ADDRESS[network.name];
+    const factory = await ethers.getContractFactory('AnniversaryToken');
+    const anniversaryToken = factory.attach(contractAddress);
 
-  const tx = await anniversaryToken.getPrice();
-  console.log(tx);
-});
+    const tx = await anniversaryToken.getPrice(taskArgs.token);
+    console.log(tx);
+  });
 
 task('view', 'view')
   .addParam('token', 'tokenId')

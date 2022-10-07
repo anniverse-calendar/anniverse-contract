@@ -59,16 +59,20 @@ describe('AnniversaryToken', function () {
         counter: number,
         options?: { value: BigNumber }
       ): Promise<void> {
-        const price = await anniversaryToken.getPrice();
-        expect(price).to.eq(options?.value ?? 0);
         const month = Math.floor(counter / 31) + 1;
         const day = (counter % 31) + 1;
-        const tx =
-          options == null
-            ? anniversaryToken.mint(month, day)
-            : anniversaryToken.mint(month, day, options);
+        const tokenId = month * 100 + day;
+        const price = await anniversaryToken.getPrice(tokenId);
+        const paymentPrice =
+          day === 1
+            ? ethers.utils.parseEther('1')
+            : BigNumber.from(options?.value ?? 0);
+        expect(price).to.eq(paymentPrice);
+        const tx = paymentPrice.eq(0)
+          ? anniversaryToken.mint(month, day)
+          : anniversaryToken.mint(month, day, { value: paymentPrice });
         await expect(tx).to.not.be.revertedWith('must pay');
-        console.log(`tx (${month * 100 + day}): ${(await tx).hash}`);
+        console.log(`tx (${tokenId}): ${(await tx).hash}`);
       }
 
       let counter = 0;
@@ -117,7 +121,7 @@ describe('AnniversaryToken', function () {
     });
   });
 
-  async function testMint(month = 1, day = 1) {
+  async function testMint(month = 1, day = 2) {
     const [signer, otherSigner] = await ethers.getSigners();
     const { anniversaryToken, owner } = await loadFixture(deploy);
     await anniversaryToken.mint(month, day);
@@ -133,43 +137,43 @@ describe('AnniversaryToken', function () {
       otherSigner,
     };
   }
-  async function mint101() {
-    return testMint(1, 1);
+  async function mint102() {
+    return testMint(1, 2);
   }
 
   describe('#setBaseURI', async function () {
     it('Should be change baseURI', async function () {
-      const { anniversaryToken } = await mint101();
-      expect(await anniversaryToken.tokenURI(101)).to.eq(
-        'https://anniverse.shwld.app/api/tokens/101'
+      const { anniversaryToken } = await mint102();
+      expect(await anniversaryToken.tokenURI(102)).to.eq(
+        'https://anniverse.shwld.app/api/tokens/102'
       );
       expect(
         anniversaryToken.setBaseURI('https://example.com/api/')
       ).to.not.revertedWith('Caller is not admin');
-      expect(await anniversaryToken.tokenURI(101)).to.eq(
-        'https://example.com/api/101'
+      expect(await anniversaryToken.tokenURI(102)).to.eq(
+        'https://example.com/api/102'
       );
     });
 
     it('Should not be change baseURI when other account', async function () {
-      const { anniversaryToken, otherSigner } = await mint101();
-      expect(await anniversaryToken.connect(otherSigner).tokenURI(101)).to.eq(
-        'https://anniverse.shwld.app/api/tokens/101'
+      const { anniversaryToken, otherSigner } = await mint102();
+      expect(await anniversaryToken.connect(otherSigner).tokenURI(102)).to.eq(
+        'https://anniverse.shwld.app/api/tokens/102'
       );
       expect(
         anniversaryToken
           .connect(otherSigner)
           .setBaseURI('https://example.com/api/')
       ).to.revertedWith('Caller is not admin');
-      expect(await anniversaryToken.connect(otherSigner).tokenURI(101)).to.eq(
-        'https://anniverse.shwld.app/api/tokens/101'
+      expect(await anniversaryToken.connect(otherSigner).tokenURI(102)).to.eq(
+        'https://anniverse.shwld.app/api/tokens/102'
       );
     });
   });
 
   describe('Anniversary', async function () {
     it('Should be able to get empty anniversary', async function () {
-      const { anniversaryToken, tokenId } = await mint101();
+      const { anniversaryToken, tokenId } = await mint102();
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be
         .empty;
       await expect((await anniversaryToken.anniversary(tokenId)).description).to
@@ -178,7 +182,7 @@ describe('AnniversaryToken', function () {
         .true;
     });
     it('Should be able to set anniversary', async function () {
-      const { anniversaryToken, tokenId } = await mint101();
+      const { anniversaryToken, tokenId } = await mint102();
       await anniversaryToken.setAnniversary(
         tokenId,
         'name',
@@ -193,7 +197,7 @@ describe('AnniversaryToken', function () {
         ).month
       ).to.be.eq(1);
       await expect((await anniversaryToken.anniversary(tokenId)).day).to.be.eq(
-        1
+        2
       );
       await expect((await anniversaryToken.anniversary(tokenId)).name).to.be.eq(
         'name'
@@ -252,7 +256,7 @@ describe('AnniversaryToken', function () {
 
     it('Should not change anniversary when not have minted.', async function () {
       const { anniversaryToken } = await loadFixture(deploy);
-      const tokenId = 101;
+      const tokenId = 102;
       expect(
         anniversaryToken.setAnniversary(
           tokenId,
@@ -276,7 +280,7 @@ describe('AnniversaryToken', function () {
     });
 
     it('Should not change anniversary by other user', async function () {
-      const { anniversaryToken, tokenId, otherSigner } = await mint101();
+      const { anniversaryToken, tokenId, otherSigner } = await mint102();
       expect(
         anniversaryToken
           .connect(otherSigner)
@@ -302,7 +306,7 @@ describe('AnniversaryToken', function () {
     });
 
     it('Should change anniversary when name is 128 characters.', async function () {
-      const { anniversaryToken, tokenId } = await mint101();
+      const { anniversaryToken, tokenId } = await mint102();
       await anniversaryToken.setAnniversary(
         tokenId,
         'A'.repeat(128),
@@ -324,7 +328,7 @@ describe('AnniversaryToken', function () {
     });
 
     it('Should not change anniversary when name is 129 characters.', async function () {
-      const { anniversaryToken, tokenId } = await mint101();
+      const { anniversaryToken, tokenId } = await mint102();
       expect(
         anniversaryToken.setAnniversary(
           tokenId,
@@ -348,7 +352,7 @@ describe('AnniversaryToken', function () {
     });
 
     it('Should change anniversary when description is 512 characters.', async function () {
-      const { anniversaryToken, tokenId } = await mint101();
+      const { anniversaryToken, tokenId } = await mint102();
       await anniversaryToken.setAnniversary(
         tokenId,
         'name',
@@ -370,7 +374,7 @@ describe('AnniversaryToken', function () {
     });
 
     it('Should not change anniversary when description is 513 characters.', async function () {
-      const { anniversaryToken, tokenId } = await mint101();
+      const { anniversaryToken, tokenId } = await mint102();
       expect(
         anniversaryToken.setAnniversary(
           tokenId,
@@ -395,7 +399,7 @@ describe('AnniversaryToken', function () {
   });
 
   it('Should change anniversary when author is 128 characters.', async function () {
-    const { anniversaryToken, tokenId } = await mint101();
+    const { anniversaryToken, tokenId } = await mint102();
     await anniversaryToken.setAnniversary(
       tokenId,
       'name',
@@ -417,7 +421,7 @@ describe('AnniversaryToken', function () {
   });
 
   it('Should not change anniversary when author is 129 characters.', async function () {
-    const { anniversaryToken, tokenId } = await mint101();
+    const { anniversaryToken, tokenId } = await mint102();
     expect(
       anniversaryToken.setAnniversary(
         tokenId,
@@ -441,7 +445,7 @@ describe('AnniversaryToken', function () {
   });
 
   it('Should change anniversary when authorUrl is 512 characters.', async function () {
-    const { anniversaryToken, tokenId } = await mint101();
+    const { anniversaryToken, tokenId } = await mint102();
     await anniversaryToken.setAnniversary(
       tokenId,
       'name',
@@ -463,7 +467,7 @@ describe('AnniversaryToken', function () {
   });
 
   it('Should not change anniversary when authorUrl is 513 characters.', async function () {
-    const { anniversaryToken, tokenId } = await mint101();
+    const { anniversaryToken, tokenId } = await mint102();
     expect(
       anniversaryToken.setAnniversary(
         tokenId,
@@ -496,17 +500,17 @@ describe('AnniversaryToken', function () {
   describe('#hasMinted', async function () {
     it('Should be false when have not minted', async function () {
       const { anniversaryToken } = await loadFixture(deploy);
-      expect(await anniversaryToken.hasMinted(1, 1)).to.be.false;
+      expect(await anniversaryToken.hasMinted(1, 2)).to.be.false;
     });
 
     it('Should be true when minted', async function () {
-      const { anniversaryToken } = await mint101();
-      expect(await anniversaryToken.hasMinted(1, 1)).to.be.true;
+      const { anniversaryToken } = await mint102();
+      expect(await anniversaryToken.hasMinted(1, 2)).to.be.true;
     });
 
     it('Should be true when minted by other account', async function () {
-      const { anniversaryToken, otherSigner } = await mint101();
-      expect(await anniversaryToken.connect(otherSigner).hasMinted(1, 1)).to.be
+      const { anniversaryToken, otherSigner } = await mint102();
+      expect(await anniversaryToken.connect(otherSigner).hasMinted(1, 2)).to.be
         .true;
     });
   });
@@ -514,30 +518,30 @@ describe('AnniversaryToken', function () {
   describe('#isMinter', async function () {
     it('Should be false when have not minted', async function () {
       const { anniversaryToken } = await loadFixture(deploy);
-      expect(await anniversaryToken.isMinter(1, 1)).to.be.false;
+      expect(await anniversaryToken.isMinter(1, 2)).to.be.false;
     });
 
     it('Should be true when minted', async function () {
-      const { anniversaryToken } = await mint101();
-      expect(await anniversaryToken.isMinter(1, 1)).to.be.true;
+      const { anniversaryToken } = await mint102();
+      expect(await anniversaryToken.isMinter(1, 2)).to.be.true;
     });
 
     it('Should be false when minted by other account', async function () {
-      const { anniversaryToken, otherSigner } = await mint101();
-      expect(await anniversaryToken.connect(otherSigner).isMinter(1, 1)).to.be
+      const { anniversaryToken, otherSigner } = await mint102();
+      expect(await anniversaryToken.connect(otherSigner).isMinter(1, 2)).to.be
         .false;
     });
 
     it('Should be true when transfer to other account', async function () {
-      const { anniversaryToken, signer, otherSigner } = await mint101();
-      expect(await anniversaryToken.connect(otherSigner).isMinter(1, 1)).to.be
+      const { anniversaryToken, signer, otherSigner } = await mint102();
+      expect(await anniversaryToken.connect(otherSigner).isMinter(1, 2)).to.be
         .false;
       await anniversaryToken.transferFrom(
         signer.address,
         otherSigner.address,
-        101
+        102
       );
-      expect(await anniversaryToken.connect(otherSigner).isMinter(1, 1)).to.be
+      expect(await anniversaryToken.connect(otherSigner).isMinter(1, 2)).to.be
         .true;
     });
   });
@@ -562,7 +566,7 @@ describe('AnniversaryToken', function () {
 
   // https://zenn.dev/cauchye/articles/ethereum-contract-erc721
   describe('feature', async function () {
-    it('should be able to mint101, transferFrom, burn. And it should return appropriate name, symbol, totalSupply, tokenURI, ownerOf, balanceOf', async function () {
+    it('should be able to mint102, transferFrom, burn. And it should return appropriate name, symbol, totalSupply, tokenURI, ownerOf, balanceOf', async function () {
       const [signer, badSigner] = await ethers.getSigners();
       const AnniversaryToken = await ethers.getContractFactory(
         'AnniversaryToken'
@@ -579,17 +583,17 @@ describe('AnniversaryToken', function () {
       expect(await anniversaryToken.symbol()).to.equal('ANNIVERSE');
       expect(await anniversaryToken.totalSupply()).to.equal(0);
 
-      // mint tokenId = 101
-      const mint0Tx = await anniversaryToken.connect(signer).mint(1, 1);
+      // mint tokenId = 102
+      const mint0Tx = await anniversaryToken.connect(signer).mint(1, 2);
       await mint0Tx.wait();
-      console.log(`mint 101 tx hash: ${mint0Tx.hash}`);
+      console.log(`mint 102 tx hash: ${mint0Tx.hash}`);
 
-      // Assertion for token(tokenId = 101)
+      // Assertion for token(tokenId = 102)
       expect(await anniversaryToken.totalSupply()).to.equal(1);
-      expect(await anniversaryToken.tokenURI(101)).to.equal(
-        'https://anniverse.shwld.app/api/tokens/101'
+      expect(await anniversaryToken.tokenURI(102)).to.equal(
+        'https://anniverse.shwld.app/api/tokens/102'
       );
-      expect(await anniversaryToken.ownerOf(101)).to.equal(signer.address);
+      expect(await anniversaryToken.ownerOf(102)).to.equal(signer.address);
       expect(await anniversaryToken.balanceOf(signer.address)).to.equal(1);
 
       // mint tokenId = 1002
@@ -605,7 +609,7 @@ describe('AnniversaryToken', function () {
       expect(await anniversaryToken.ownerOf(1002)).to.equal(signer.address);
       expect(await anniversaryToken.balanceOf(signer.address)).to.equal(2);
 
-      // transfer token(tokenId = 101) from signer.address to badSigner.address
+      // transfer token(tokenId = 102) from signer.address to badSigner.address
       const transfer1FromSignerToAddressTx = await anniversaryToken
         .connect(signer)
         .transferFrom(signer.address, badSigner.address, 1002);
@@ -620,17 +624,17 @@ describe('AnniversaryToken', function () {
       expect(await anniversaryToken.balanceOf(signer.address)).to.equal(1);
       expect(await anniversaryToken.balanceOf(badSigner.address)).to.equal(1);
 
-      // burn token(tokenId = 101)
-      const burn0Tx = await anniversaryToken.burn(101);
+      // burn token(tokenId = 102)
+      const burn0Tx = await anniversaryToken.burn(102);
       await burn0Tx.wait();
       console.log(`burn0 tx hash: ${burn0Tx.hash}`);
 
-      // Assertion for burned token(tokenId = 101)
+      // Assertion for burned token(tokenId = 102)
       expect(await anniversaryToken.totalSupply()).to.equal(1);
-      expect(anniversaryToken.ownerOf(101)).to.revertedWith(
+      expect(anniversaryToken.ownerOf(102)).to.revertedWith(
         'ERC721: owner query for nonexistent token'
       );
-      expect(anniversaryToken.tokenURI(101)).to.revertedWith(
+      expect(anniversaryToken.tokenURI(102)).to.revertedWith(
         'ERC721Metadata: URI query for nonexistent token'
       );
       expect(await anniversaryToken.balanceOf(signer.address)).to.equal(0);

@@ -35,14 +35,13 @@ contract AnniversaryToken is
   }
 
   function mint(uint256 month, uint256 day) public payable virtual {
-    uint256 price = getPrice();
+    uint256 tokenId = month * 100 + day;
+    uint256 price = getPrice(tokenId);
     require(msg.value == price, 'must pay');
     require(month > 0 && month <= 12, 'month is invalid');
     require(day > 0 && day <= 31, 'day is invalid');
 
     _pay(price);
-
-    uint256 tokenId = month * 100 + day;
 
     _mint(_msgSender(), tokenId);
   }
@@ -78,10 +77,12 @@ contract AnniversaryToken is
     return _tokenCounter.current();
   }
 
-  function getPrice() public view returns (uint256) {
+  function getPrice(uint256 tokenId) public view returns (uint256) {
     uint256 counter = _tokenCounter.current();
     uint256 price = 0;
-    if (counter >= 265) {
+    if (tokenId % 100 == 1) {
+      price = 1 ether;
+    } else if (counter >= 265) {
       price = 1 ether;
     } else if (counter >= 165) {
       price = 0.5 ether;
