@@ -16,13 +16,17 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    ...(process.env.ALCHEMY_API_KEY
+    ...(process.env.GOERLI_ALCHEMY_API_KEY
       ? {
           goerli: {
             url: `https://eth-goerli.alchemyapi.io/v2/${process.env
               .GOERLI_ALCHEMY_API_KEY!}`,
             accounts: [process.env.GOERLI_PRIVATE_KEY!],
           },
+        }
+      : {}),
+    ...(process.env.MAINNET_ALCHEMY_API_KEY
+      ? {
           mainnet: {
             url: `https://eth-goerli.alchemyapi.io/v2/${process.env
               .MAINNET_ALCHEMY_API_KEY!}`,
