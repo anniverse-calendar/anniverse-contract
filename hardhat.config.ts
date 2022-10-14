@@ -20,14 +20,26 @@ const config: HardhatUserConfig = {
       ? {
           goerli: {
             url: `https://eth-goerli.alchemyapi.io/v2/${process.env
-              .ALCHEMY_API_KEY!}`,
+              .GOERLI_ALCHEMY_API_KEY!}`,
             accounts: [process.env.GOERLI_PRIVATE_KEY!],
+          },
+          mainnet: {
+            url: `https://eth-goerli.alchemyapi.io/v2/${process.env
+              .MAINNET_ALCHEMY_API_KEY!}`,
+            accounts: [process.env.MAINNET_PRIVATE_KEY!],
           },
         }
       : {}),
     localhost: {
       allowUnlimitedContractSize: true,
     },
+  },
+  gasReporter: {
+    enabled: true,
+    currency: 'JPY',
+    gasPriceApi:
+      'https://api.etherscan.io/api?module=proxy&action=eth_gasPrice',
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
 };
 
